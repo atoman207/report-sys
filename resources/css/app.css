@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+body {
+    font-family: 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
+    background: #f7fafd;
+    color: #222;
+    min-height: 100vh;
+    line-height: 1.7;
+}
+
+.container-fluid, .container {
+    padding: 1.5rem 0.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 1.2rem;
+    box-shadow: 0 2px 12px rgba(60, 80, 120, 0.06);
+    background: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background: linear-gradient(90deg, #e3f0ff 0%, #f7fafd 100%);
+    color: #2a4d7a;
+    font-weight: 700;
+    border-radius: 1.2rem 1.2rem 0 0;
+    border: none;
+    font-size: 1.1rem;
+    padding: 1.1rem 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.btn {
+    border-radius: 0.7rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-primary {
+    background: #4e8cff;
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #357ae8;
+}
+.btn-secondary {
+    background: #e3f0ff;
+    color: #2a4d7a;
+}
+.btn-secondary:hover {
+    background: #d0e3fa;
+}
+.btn-danger {
+    background: #ffb4b4;
+    color: #a33;
+}
+.btn-danger:hover {
+    background: #ff8a8a;
+}
+
+.table {
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #fff;
+    font-size: 1rem;
+}
+.table th, .table td {
+    padding: 1rem 0.7rem;
+    border-top: none;
+    vertical-align: middle;
+}
+.table th {
+    background: #f0f6ff;
+    color: #2a4d7a;
+    font-weight: 700;
+    font-size: 1rem;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background: #f7fafd;
+}
+
+.form-label {
+    font-weight: 700;
+    color: #2a4d7a;
+    margin-bottom: 0.3rem;
+}
+.form-control, .form-select {
+    border-radius: 0.7rem;
+    border: 1.5px solid #d0e3fa;
+    font-size: 1.05rem;
+    padding: 0.7rem 1rem;
+    background: #f7fafd;
+    margin-bottom: 0.5rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #4e8cff;
+    background: #fff;
+    outline: none;
+}
+
+.alert {
+    border-radius: 0.7rem;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1.05rem;
+}
+.alert-success {
+    background: #e6f9e6;
+    color: #217a21;
+}
+.alert-danger {
+    background: #ffeaea;
+    color: #a33;
+}
+.alert-warning {
+    background: #fffbe6;
+    color: #a67c00;
+}
+
+.badge {
+    border-radius: 0.7rem;
+    font-size: 0.95em;
+    padding: 0.4em 0.8em;
+}
+
+/* 画像アップロード・プレビュー */
+.image-upload-container {
+    border: 2px dashed #d0e3fa;
+    border-radius: 1rem;
+    background: #f7fafd;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.image-preview-item img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 0.7rem;
+    border: 1.5px solid #d0e3fa;
+}
+
+/* 署名パッド */
+#signature-pad {
+    border: 2px dashed #d0e3fa;
+    border-radius: 1rem;
+    background: #f7fafd;
+    min-height: 180px;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+    .card-body, .container-fluid, .container {
+        padding: 1rem 0.3rem;
+    }
+    .btn {
+        width: 100%;
+        margin-bottom: 0.7rem;
+    }
+    .table th, .table td {
+        padding: 0.7rem 0.3rem;
+    }
+} 
