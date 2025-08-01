@@ -203,12 +203,38 @@
             <div class="summary-section">
                 <div class="summary-title">📊 レポート概要</div>
                 
-                <div class="sender-info">
-                    <strong>送信者:</strong> {{ $summary['sender']['name'] }} ({{ $summary['sender']['email'] }})
-                    <br>
-                    <strong>送信日時:</strong> {{ $summary['report']['created_at'] }}
-                    <br>
-                    <strong>レポートID:</strong> #{{ $summary['report']['id'] }}
+                <!-- Prominent Sender Information -->
+                <div class="sender-info" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-left: 5px solid #ffc107; margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 600; color: #856404; margin-bottom: 10px;">
+                        📧 <strong>送信者情報</strong>
+                    </div>
+                    <div style="font-size: 14px; color: #856404;">
+                        <strong>名前:</strong> {{ $summary['sender']['name'] }}
+                        <br>
+                        <strong>メールアドレス:</strong> <span style="color: #e74c3c; font-weight: 600;">{{ $summary['sender']['email'] }}</span>
+                        <br>
+                        <strong>役割:</strong> {{ $summary['sender']['role'] }}
+                        <br>
+                        <strong>送信日時:</strong> {{ $summary['report']['created_at'] }}
+                        <br>
+                        <strong>レポートID:</strong> #{{ $summary['report']['id'] }}
+                    </div>
+                </div>
+                
+                <!-- Brief Description -->
+                <div class="sender-info" style="background: linear-gradient(135deg, #d1ecf1, #bee5eb); border-left: 5px solid #17a2b8; margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 600; color: #0c5460; margin-bottom: 10px;">
+                        📋 <strong>レポート概要</strong>
+                    </div>
+                    <div style="font-size: 14px; color: #0c5460;">
+                        <strong>会社名:</strong> {{ $summary['report']['company'] }}
+                        <br>
+                        <strong>作業内容:</strong> {{ $summary['report']['work_type'] }} - {{ $summary['report']['task_type'] }}
+                        <br>
+                        <strong>訪問状況:</strong> {{ $summary['report']['visit_status'] }}
+                        <br>
+                        <strong>添付ファイル:</strong> 画像{{ $summary['report']['image_count'] }}枚{{ $summary['report']['has_signature'] ? ' + 署名' : '' }}
+                    </div>
                 </div>
                 
                 <div class="summary-grid">

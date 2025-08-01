@@ -45,6 +45,24 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    @php
+                        // Check if user has already submitted a report today
+                        $today = now()->startOfDay();
+                        $existingReport = \App\Models\Report::where('user_id', auth()->id())
+                            ->whereDate('created_at', $today)
+                            ->first();
+                    @endphp
+                    
+                    @if($existingReport)
+                        <div class="alert alert-warning animate-fade-in" data-delay="0.1">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>本日は既にレポートを提出済みです。</strong><br>
+                            提出日時: {{ $existingReport->created_at->format('Y年m月d日 H:i') }}<br>
+                            会社名: {{ $existingReport->company }}<br>
+                            1日1回までレポートを提出できます。明日までお待ちください。
+                        </div>
+                    @endif
+                    
                     @if(session('success'))
                         <div class="alert alert-success animate-fade-in" data-delay="0.1">
                             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
@@ -197,11 +215,11 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">画像添付（最大10枚、合計5MBまで）</label>
+                                <label class="form-label">画像添付（最大10枚、合計10MBまで）</label>
                                 <div class="image-upload-container">
                                     <div class="upload-status mb-2">
                                         <span id="image-count" class="badge bg-info">0/10</span>
-                                        <span id="size-info" class="badge bg-secondary ms-2">0MB/5MB</span>
+                                        <span id="size-info" class="badge bg-secondary ms-2">0MB/10MB</span>
                                     </div>
                                     <input type="file" name="images[]" id="image-input" class="form-control form-input" accept="image/*" multiple>
                                     <div class="form-text">JPEG, PNG, JPG, GIF形式、1ファイル最大10MBまで</div>
@@ -213,9 +231,18 @@
                         </div>
                         <!-- 送信ボタン -->
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-lg submit-btn blue-button" id="submitButton">
-                                <i class="fas fa-paper-plane me-2"></i>送信する
-                            </button>
+                            @if($existingReport)
+                                <button type="button" class="btn btn-secondary btn-lg" disabled>
+                                    <i class="fas fa-clock me-2"></i>本日は提出済み
+                                </button>
+                                <div class="mt-2">
+                                    <small class="text-muted">明日までお待ちください</small>
+                                </div>
+                            @else
+                                <button type="submit" class="btn btn-primary btn-lg submit-btn blue-button" id="submitButton">
+                                    <i class="fas fa-paper-plane me-2"></i>送信する
+                                </button>
+                            @endif
                         </div>
                         
                     </form>
@@ -355,7 +382,7 @@
         const sizeInfo = document.getElementById('size-info');
         let selectedFiles = [];
         const MAX_IMAGES = 10;
-        const MAX_TOTAL_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+        const MAX_TOTAL_SIZE = 5 * 1024 * 1024; // 10MB in bytes
         const MAX_FILE_SIZE = 2 * 1024 * 1024; // 10MB per file
 
         imageInput.addEventListener('change', function(e) {
@@ -380,7 +407,7 @@
                 }
                 
                 if (totalSize + file.size > MAX_TOTAL_SIZE) {
-                    alert(`合計サイズが5MBを超えるため、ファイル "${file.name}" を追加できません。`);
+                    alert(`合計サイズが10MBを超えるため、ファイル "${file.name}" を追加できません。`);
                     continue;
                 }
                 
@@ -400,7 +427,7 @@
             const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
             
             imageCount.textContent = `${count}/${MAX_IMAGES}`;
-            sizeInfo.textContent = `${totalSizeMB}MB/5MB`;
+            sizeInfo.textContent = `${totalSizeMB}MB/10MB`;
             
             // Update badge colors based on limits
             if (count >= MAX_IMAGES) {

@@ -14,6 +14,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Report management routes
     Route::get('/home', [RequestController::class, 'indexReport'])->name('indexReport');
+    Route::get('/my-reports', [RequestController::class, 'myReports'])->name('myReports');
     Route::get('/report/{id}/edit', [RequestController::class, 'editReport'])->name('editReport');
     Route::post('/report/{id}/update', [RequestController::class, 'updateReport'])->name('updateReport');
     Route::delete('/report/{id}', [RequestController::class, 'deleteReport'])->name('deleteReport');

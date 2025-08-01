@@ -1,20 +1,21 @@
 📋 レポート送信通知
 ===============================
 
-📊 レポート概要
+📧 送信者情報
 ===============================
-
-送信者: {{ $summary['sender']['name'] }} ({{ $summary['sender']['email'] }})
+名前: {{ $summary['sender']['name'] }}
+メールアドレス: {{ $summary['sender']['email'] }}
+役割: {{ $summary['sender']['role'] }}
 送信日時: {{ $summary['report']['created_at'] }}
 レポートID: #{{ $summary['report']['id'] }}
 
-基本情報:
-- 会社名: {{ $summary['report']['company'] }}
-- 担当者: {{ $summary['quick_info']['person'] }}
-- 工事分類: {{ $summary['report']['work_type'] }}
-- 作業分類: {{ $summary['report']['task_type'] }}
-- 訪問ステータス: {{ $summary['report']['visit_status'] }}
-- 作業時間: {{ $summary['quick_info']['start_time'] }} - {{ $summary['quick_info']['end_time'] }}
+📋 レポート概要
+===============================
+会社名: {{ $summary['report']['company'] }}
+作業内容: {{ $summary['report']['work_type'] }} - {{ $summary['report']['task_type'] }}
+訪問状況: {{ $summary['report']['visit_status'] }}
+担当者: {{ $summary['quick_info']['person'] }}
+作業時間: {{ $summary['quick_info']['start_time'] }} - {{ $summary['quick_info']['end_time'] }}
 
 添付ファイル:
 - 画像: {{ $summary['report']['image_count'] }}枚

@@ -71,11 +71,21 @@
                             </a>
                             @foreach($users as $index => $user)
                                 <a href="{{ route('dashboard', ['user_id' => $user->id]) }}" class="list-group-item list-group-item-action {{ request('user_id') == $user->id ? 'active' : '' }} btn-animated" data-delay="{{ $index * 0.05 }}">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>{{ $user->name }}</span>
-                                        <div>
-                                            <span class="badge bg-secondary">{{ $user->reports_count ?? 0 }}</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3">
+                                            <img src="{{ $user->avatar_url }}" alt="{{ $user->getAvatarDisplayName() }}" 
+                                                 class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"
+                                                 onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-medium">{{ $user->name }}</span>
+                                                <div>
+                                                    <span class="badge bg-secondary">{{ $user->reports_count ?? 0 }}</span>
                                             @if($user->role === 'admin')<span class="badge bg-danger ms-1">管理者</span>@endif
+                                                </div>
+                                            </div>
+                                            <div class="small text-muted">{{ $user->email }}</div>
                                         </div>
                                     </div>
                                 </a>
@@ -89,11 +99,21 @@
                         </button>
                         @foreach($users as $index => $user)
                             <button class="btn btn-outline-primary w-100 mb-2 member-btn btn-animated" data-user="{{ $user->id }}" data-delay="{{ $index * 0.05 }}">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>{{ $user->name }}</span>
-                                    <div>
-                                        <span class="badge bg-secondary">{{ $user->reports_count ?? 0 }}</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        <img src="{{ $user->avatar_url }}" alt="{{ $user->getAvatarDisplayName() }}" 
+                                             class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;"
+                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                    </div>
+                                    <div class="flex-grow-1 text-start">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-medium">{{ $user->name }}</span>
+                                            <div>
+                                                <span class="badge bg-secondary">{{ $user->reports_count ?? 0 }}</span>
                                         @if($user->role === 'admin')<span class="badge bg-danger ms-1">管理者</span>@endif
+                                            </div>
+                                        </div>
+                                        <div class="small text-muted">{{ $user->email }}</div>
                                     </div>
                                 </div>
                             </button>
@@ -253,8 +273,18 @@
                                         <tr class="animate-fade-in" data-delay="{{ $index * 0.03 }}">
                                             <td><span class="badge bg-secondary">#{{ $report->id }}</span></td>
                                             <td>
-                                                <div>{{ $report->user->name ?? '不明' }}</div>
-                                                <div class="small text-muted">{{ $report->user->email ?? '' }}</div>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-avatar me-2">
+                                                        <img src="{{ $report->user->avatar_url ?? asset('images/default-avatar.png') }}" 
+                                                             alt="{{ $report->user ? $report->user->getAvatarDisplayName() : 'Unknown User' }}" 
+                                                             class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;"
+                                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-medium">{{ $report->user->name ?? '不明' }}</div>
+                                                        <div class="small text-muted">{{ $report->user->email ?? '' }}</div>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td>{{ $report->company }}</td>
                                             <td>{{ $report->work_type }}</td>
@@ -354,10 +384,22 @@ function renderMobileReports(userId) {
     } else {
         html += '<div class="list-group">';
         reports.forEach((r, index) => {
-            html += `<div class='list-group-item mb-2 animate-slide-up' data-delay='${index * 0.05}'>
-                <div class='fw-bold mb-1'>${r.company} <span class='badge bg-secondary'>#${r.id}</span></div>
-                <div class='small text-muted mb-1'><i class="fas fa-user me-1"></i>${users[r.user_id]?.name || '不明'} / <i class="fas fa-tools me-1"></i>${r.work_type} / <i class="fas fa-tasks me-1"></i>${r.task_type}</div>
-                <div class='mb-1'><i class="fas fa-map-marker-alt me-1"></i>${r.visit_status} / <i class="fas fa-clock me-1"></i>${r.created_at.substring(0,16).replace('T',' ')}</div>
+            const user = users[r.user_id];
+        const userAvatar = user?.avatar ? `/storage/${user.avatar}` : '/images/default-avatar.png';
+        const userName = user?.name || '不明';
+        const userEmail = user?.email || '';
+        
+        html += `<div class='list-group-item mb-2 animate-slide-up' data-delay='${index * 0.05}'>
+                <div class='d-flex align-items-start mb-2'>
+                    <div class='user-avatar me-2'>
+                        <img src='${userAvatar}' alt='${userName}' class='rounded-circle' style='width: 40px; height: 40px; object-fit: cover;' onerror="this.src='/images/default-avatar.png'">
+                    </div>
+                    <div class='flex-grow-1'>
+                        <div class='fw-bold mb-1'>${r.company} <span class='badge bg-secondary'>#${r.id}</span></div>
+                        <div class='small text-muted mb-1'><i class="fas fa-user me-1"></i>${userName} / <i class="fas fa-tools me-1"></i>${r.work_type} / <i class="fas fa-tasks me-1"></i>${r.task_type}</div>
+                        <div class='mb-1'><i class="fas fa-map-marker-alt me-1"></i>${r.visit_status} / <i class="fas fa-clock me-1"></i>${r.created_at.substring(0,16).replace('T',' ')}</div>
+                    </div>
+                </div>
                 <div class='d-flex flex-wrap gap-1 mb-1'>
                     ${(r.images && r.images.length) ? `<button type="button" class="btn btn-sm btn-outline-primary btn-animated view-image-btn" data-images='${JSON.stringify(r.images)}' data-report-id="${r.id}" data-report-company="${r.company}"><i class="fas fa-image me-1"></i>画像 (${r.images.length}枚)</button>` : '<span class="text-muted"><i class="fas fa-times me-1"></i>画像なし</span>'}
                     ${r.signature ? `<a href='/storage/${r.signature}' target='_blank' class='btn btn-sm btn-outline-success btn-animated'><i class="fas fa-signature me-1"></i>署名</a>` : '<span class="text-muted"><i class="fas fa-times me-1"></i>署名なし</span>'}
@@ -700,7 +742,7 @@ document.addEventListener('click', function(e) {
     from {
         transform: translateX(100%);
         opacity: 0;
-    }
+}
     to {
         transform: translateX(0);
         opacity: 1;
@@ -874,6 +916,49 @@ document.addEventListener('click', function(e) {
 .view-image-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* User Avatar Styling */
+.user-avatar {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+.user-avatar img {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover img {
+    border-color: #007bff;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.list-group-item.active .user-avatar img {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
+}
+
+/* Avatar loading animation */
+.user-avatar img[src*="default-avatar"] {
+    opacity: 0.7;
+}
+
+/* Mobile avatar adjustments */
+@media (max-width: 768px) {
+    .user-avatar img {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .list-group-item .user-avatar img {
+        width: 30px !important;
+        height: 30px !important;
+    }
 }
 
 /* Modal animation */

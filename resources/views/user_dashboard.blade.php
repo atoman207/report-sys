@@ -3,6 +3,14 @@
 @php use Illuminate\Support\Facades\Storage; @endphp
 
 @section('content')
+@php
+    // Check if user has already submitted a report today
+    $today = now()->startOfDay();
+    $existingReport = \App\Models\Report::where('user_id', auth()->id())
+        ->whereDate('created_at', $today)
+        ->first();
+@endphp
+
 <!-- Notification System -->
 <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
     <!-- Notifications will be dynamically inserted here -->
@@ -17,16 +25,64 @@
                 </a>
             </div> -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="animate-fade-in">
-                    <h2 class="mb-1 fs-4 fw-bold text-primary">マイダッシュボード</h2>
-                    <div class="text-muted small">{{ auth()->user()->name }}さん、お疲れ様です！</div>
+                <div class="animate-fade-in d-flex align-items-center">
+                    <div class="user-avatar me-3">
+                        <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->getAvatarDisplayName() }}" 
+                             class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                             onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                    </div>
+                    <div>
+                        <h2 class="mb-1 fs-4 fw-bold text-primary">マイダッシュボード</h2>
+                        <div class="text-muted small">{{ auth()->user()->name }}さん、お疲れ様です！</div>
+                        <div class="text-muted small">
+                            <i class="fas fa-clock me-1"></i>最終ログイン: {{ auth()->user()->last_login_formatted }}
+                        </div>
+                    </div>
                 </div>
                 <div class="text-end">
-                    <a href="{{ route('showForm') }}" class="btn btn-primary btn-animated">
-                        <i class="fas fa-plus me-2"></i>新規レポート作成
-                    </a>
+                    @if($existingReport)
+                        <button class="btn btn-secondary btn-animated" disabled>
+                            <i class="fas fa-check me-2"></i>本日は提出済み
+                        </button>
+                    @else
+                        <a href="{{ route('showForm') }}" class="btn btn-primary btn-animated">
+                            <i class="fas fa-plus me-2"></i>新規レポート作成
+                        </a>
+                    @endif
                 </div>
             </div>
+            
+            @if($existingReport)
+            <!-- 今日のレポート提出状況 -->
+            <div class="alert alert-info animate-fade-in mb-4" data-delay="0.1">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle me-3 fs-4"></i>
+                    <div>
+                        <h6 class="mb-1">✅ 本日はレポートを提出済みです</h6>
+                        <div class="small text-muted">
+                            提出日時: {{ $existingReport->created_at->format('Y年m月d日 H:i') }}<br>
+                            会社名: {{ $existingReport->company }}<br>
+                            1日1回までレポートを提出できます。明日までお待ちください。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @else
+            <!-- 今日のレポート提出状況 -->
+            <div class="alert alert-warning animate-fade-in mb-4" data-delay="0.1">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-clock me-3 fs-4"></i>
+                    <div>
+                        <h6 class="mb-1">⏰ 本日はまだレポートを提出していません</h6>
+                        <div class="small text-muted">
+                            今日の作業内容をレポートとして提出してください。<br>
+                            1日1回までレポートを提出できます。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+            
             <!-- 統計カード -->
             <div class="row mb-4 g-3">
                 <div class="col-4">
@@ -462,6 +518,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* User Avatar Styling */
+.user-avatar {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+.user-avatar img {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover img {
+    border-color: #007bff;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* Avatar loading animation */
+.user-avatar img[src*="default-avatar"] {
+    opacity: 0.7;
+}
+
+/* Mobile avatar adjustments */
+@media (max-width: 768px) {
+    .user-avatar img {
+        width: 50px !important;
+        height: 50px !important;
+    }
 }
 </style>
 @endpush 
