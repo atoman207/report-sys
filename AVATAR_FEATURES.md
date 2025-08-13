@@ -235,7 +235,7 @@ storage/
 └── ...
 
 public/
-├── storage -> ../storage/app/public
+├── storage -> ../storage
 └── images/
     └── default-avatar.png
 ``` 

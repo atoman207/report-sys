@@ -14,7 +14,7 @@
                 <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                     @csrf
 
-                    <!-- Header with Avatar -->
+                    <!-- Header -->
                     <div class="form-header mb-4">
                         <div class="row align-items-center">
                             <div class="col">
@@ -22,31 +22,24 @@
                                     <i class="fas fa-user-plus me-2"></i>アカウント登録
                                 </h5>
                             </div>
-                            <div class="col-auto">
-                                <!-- Avatar Selection -->
-                                <div class="avatar-selection-container">
-                                    <div class="avatar-preview" id="avatar-preview" onclick="triggerFileUpload()">
-                                        <img src="/images/default-avatar.png" alt="Default Avatar" id="preview-image" class="avatar-preview-img">
-                                        <div class="avatar-preview-placeholder" id="preview-placeholder">
-                                            <i class="fas fa-user fa-2x text-muted"></i>
-                                        </div>
-                                        <div class="avatar-upload-overlay">
-                                            <i class="fas fa-camera fa-sm text-white"></i>
-                                            <span class="upload-text">選択</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Hidden file input -->
-                                <input id="avatar" type="file" class="d-none" name="avatar" accept="image/*" onchange="previewAvatar(this)">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+
+                        <div class="d-flex align-items-center gap-3 avatar-row">
+                            <!-- <label for="avatar" class="avatar-preview-label" title="クリックして画像を選択">
+                                <img id="avatar-preview" src="{{ asset('images/default-avatar.png') }}" alt="Avatar Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid #e9ecef; cursor: pointer;">
+                            </label> -->
+                            <div id="avatar-input-container" class="flex-grow-1 d-none">
+                                <input id="avatar" type="file" class="form-control form-control-lg @error('avatar') is-invalid @enderror" name="avatar" accept="image/*">
+                                @error('avatar')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
                         </div>
-                        
-                        @error('avatar')
-                            <span class="invalid-feedback d-block mt-2" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
                     </div>
 
                     <div class="mb-3">
@@ -79,10 +72,12 @@
                         <label for="password" class="form-label">
                             <i class="fas fa-lock me-1"></i>{{ __('Password') }}
                         </label>
-                        <input id="password" type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="パスワードを入力">
-
+                        <div class="input-group input-group-lg">
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="パスワードを入力">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password"><i class="fas fa-eye"></i></button>
+                        </div>
                         @error('password')
-                            <span class="invalid-feedback" role="alert">
+                            <span class="invalid-feedback d-block" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
@@ -92,8 +87,13 @@
                         <label for="password-confirm" class="form-label">
                             <i class="fas fa-lock me-1"></i>{{ __('Confirm Password') }}
                         </label>
-                        <input id="password-confirm" type="password" class="form-control form-control-lg" name="password_confirmation" required autocomplete="new-password" placeholder="パスワードを再入力">
+                        <div class="input-group input-group-lg">
+                            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="パスワードを再入力">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password-confirm"><i class="fas fa-eye"></i></button>
+                        </div>
                     </div>
+
+
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg">
@@ -109,57 +109,6 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-function previewAvatar(input) {
-    const preview = document.getElementById('preview-image');
-    const placeholder = document.getElementById('preview-placeholder');
-    const file = input.files[0];
-    
-    if (file) {
-        // Validate file size (2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            alert('ファイルサイズは2MB以下にしてください。');
-            input.value = '';
-            return;
-        }
-        
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            alert('画像ファイルを選択してください。');
-            input.value = '';
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            placeholder.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    } else {
-        preview.style.display = 'none';
-        placeholder.style.display = 'flex';
-    }
-}
-
-function triggerFileUpload() {
-    document.getElementById('avatar').click();
-}
-
-// Initialize with default placeholder
-document.addEventListener('DOMContentLoaded', function() {
-    const preview = document.getElementById('preview-image');
-    const placeholder = document.getElementById('preview-placeholder');
-    
-    // Show placeholder by default
-    preview.style.display = 'none';
-    placeholder.style.display = 'flex';
-});
-</script>
-@endpush
 
 @push('styles')
 <style>
@@ -232,15 +181,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 @keyframes headerShine {
-    0% {
-        left: -100%;
-    }
-    50% {
-        left: 100%;
-    }
-    100% {
-        left: 100%;
-    }
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
 }
 
 /* Form Input Animations */
@@ -258,14 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 @keyframes inputAppear {
-    0% {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Button Animation */
@@ -282,145 +219,98 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 @keyframes buttonAppear {
-    0% {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
-/* Avatar Styling */
-.form-header {
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 1rem;
-}
-
-.avatar-selection-container {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.avatar-preview {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 2px solid #e9ecef;
-    overflow: hidden;
-    position: relative;
-    background: #f8f9fa;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-}
-
-.avatar-preview:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    border-color: #0d6efd;
-}
-
-.avatar-preview-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-}
-
-.avatar-preview-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-}
-
-.avatar-upload-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.avatar-preview:hover .avatar-upload-overlay {
-    opacity: 1;
-}
-
-.avatar-upload-overlay .upload-text {
-    margin-top: 2px;
-    font-size: 0.7rem;
-    color: white;
-    text-align: center;
-    font-weight: 500;
-}
-
-
+/* Form Header Styling */
+.form-header { border-bottom: 1px solid #e9ecef; padding-bottom: 1rem; }
 
 /* Responsive Design */
 @media (max-width: 576px) {
-    .login-container {
-        padding: 15px;
-    }
-    
-    .login-card-wrapper {
-        max-width: 100%;
-    }
-    
-    .login-card .card-body {
-        padding: 1.5rem 1rem !important;
-    }
-    
-    .form-control-lg {
-        font-size: 16px !important; /* Prevents zoom on iOS */
-    }
-    
-    .btn-lg {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-    
-    .form-header .row {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .form-header .col-auto {
-        margin-top: 1rem;
-    }
-    
-    .avatar-preview {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .avatar-upload-overlay .upload-text {
-        font-size: 0.6rem;
-    }
+    .login-container { padding: 15px; }
+    .login-card-wrapper { max-width: 100%; }
+    .login-card .card-body { padding: 1.5rem 1rem !important; }
+    .form-control-lg { font-size: 16px !important; /* Prevents zoom on iOS */ }
+    .btn-lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
+    .form-header .row { flex-direction: column; text-align: center; }
 }
 
 /* Enhanced Card Styling */
-.login-card {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
+.login-card { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95); }
+.login-card:hover { transform: translateY(-5px); box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4); transition: all 0.3s ease; }
+
+/* Make label behave like a button for avatar */
+.avatar-preview-label { display: inline-block; margin: 0; }
+.avatar-preview-label img { display: block; }
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .avatar-row { flex-direction: column; align-items: flex-start !important; }
+  .avatar-preview-label img { width: 72px; height: 72px; }
+  .login-card .form-control, .login-card .btn { font-size: 16px; } /* avoid iOS zoom */
+  .form-header { text-align: left; }
 }
 
-.login-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
-    transition: all 0.3s ease;
+/* Improve spacing on small screens */
+@media (max-width: 768px) {
+  .login-container { margin-top: 20px; }
+  .login-card .card-body { padding: 1.25rem !important; }
+  .mb-3, .mb-4 { margin-bottom: 0.9rem !important; }
 }
 </style>
+ @endpush
+
+@push('scripts')
+<script>
+// Avatar preview and input toggle
+const avatarInput = document.getElementById('avatar');
+const avatarPreview = document.getElementById('avatar-preview');
+const avatarInputContainer = document.getElementById('avatar-input-container');
+if (avatarInput && avatarPreview && avatarInputContainer) {
+    // Clicking preview triggers file dialog without showing the input
+    avatarPreview.addEventListener('click', function() {
+        avatarInput.click();
+    });
+
+    avatarInput.addEventListener('change', function() {
+        const file = this.files && this.files[0];
+        if (!file) return;
+
+        // Validate on client side (optional, server still validates)
+        const maxBytes = 2 * 1024 * 1024; // 2MB
+        if (!/^image\/(jpeg|png|gif)$/.test(file.type)) {
+            alert('JPG/PNG/GIF の画像を選択してください');
+            this.value = '';
+            return;
+        }
+        if (file.size > maxBytes) {
+            alert('ファイルサイズは2MB以下にしてください');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            avatarPreview.src = e.target.result;
+            // Keep file input hidden
+            avatarInputContainer.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Password visibility toggles
+for (const btn of document.querySelectorAll('.toggle-password')) {
+    btn.addEventListener('click', function(){
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        const showing = input.getAttribute('type') === 'text';
+        input.setAttribute('type', showing ? 'password' : 'text');
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+}
+</script>
 @endpush

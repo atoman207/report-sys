@@ -147,6 +147,30 @@ class ImageUploadService
     }
     
     /**
+     * Delete avatar/signature image
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function deleteAvatar(string $path): bool
+    {
+        try {
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+                Log::info('Avatar/Signature deleted successfully', ['path' => $path]);
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
+            Log::error('Failed to delete avatar/signature', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+    
+    /**
      * Get image URL for display
      *
      * @param string $path

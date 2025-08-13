@@ -31,29 +31,87 @@ class Report extends Model
     }
 
     /**
-     * Get image URLs for display
+     * Normalize a stored path to be relative to the public disk root.
      */
-    public function getImageUrlsAttribute()
+    private function normalizeStoragePath(string $path): string
     {
-        if (!$this->images) {
+        $normalized = str_replace('\\', '/', trim($path));
+
+        // Strip scheme/host if a full URL was stored
+        $normalized = preg_replace('#^https?://[^/]+/#i', '', $normalized);
+
+        // If path starts with public URL prefix "storage/", remove it
+        if (strpos($normalized, 'storage/') === 0) {
+            $normalized = substr($normalized, strlen('storage/'));
+        }
+
+        // If an absolute server path was stored, keep only segment after storage/app/public/
+        $needle = 'storage/app/public/';
+        $pos = stripos($normalized, $needle);
+        if ($pos !== false) {
+            $normalized = substr($normalized, $pos + strlen($needle));
+        }
+
+        // Remove leading slashes
+        $normalized = ltrim($normalized, '/');
+
+        return $normalized;
+    }
+
+    /**
+     * Normalized images array (paths relative to public disk root)
+     */
+    public function getNormalizedImagesAttribute(): array
+    {
+        if (empty($this->images) || !is_array($this->images)) {
             return [];
         }
 
-        return collect($this->images)->map(function ($path) {
+        return collect($this->images)
+            ->filter()
+            ->map(fn ($p) => $this->normalizeStoragePath((string) $p))
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Normalized signature path (relative to public disk root)
+     */
+    public function getNormalizedSignatureAttribute(): ?string
+    {
+        if (empty($this->signature)) {
+            return null;
+        }
+
+        return $this->normalizeStoragePath((string) $this->signature);
+    }
+
+    /**
+     * Get image URLs for display (auto-normalized)
+     */
+    public function getImageUrlsAttribute()
+    {
+        $paths = $this->normalized_images;
+        if (empty($paths)) {
+            return [];
+        }
+
+        return collect($paths)->map(function ($path) {
             return Storage::disk('public')->url($path);
         })->toArray();
     }
 
     /**
-     * Get signature URL for display
+     * Get signature URL for display (auto-normalized)
      */
     public function getSignatureUrlAttribute()
     {
-        if (!$this->signature) {
+        if (!$this->normalized_signature) {
             return null;
         }
 
-        return Storage::disk('public')->url($this->signature);
+        return Storage::disk('public')->url($this->normalized_signature);
     }
 
     /**
@@ -61,7 +119,7 @@ class Report extends Model
      */
     public function hasImages()
     {
-        return !empty($this->images) && is_array($this->images);
+        return !empty($this->normalized_images);
     }
 
     /**
@@ -69,7 +127,7 @@ class Report extends Model
      */
     public function getImageCountAttribute()
     {
-        return $this->hasImages() ? count($this->images) : 0;
+        return count($this->normalized_images);
     }
 
     /**
@@ -80,15 +138,13 @@ class Report extends Model
         if (!$this->hasImages()) {
             return 0;
         }
-
-        $totalSize = 0;
-        foreach ($this->images as $path) {
+        $total = 0;
+        foreach ($this->normalized_images as $path) {
             if (Storage::disk('public')->exists($path)) {
-                $totalSize += Storage::disk('public')->size($path);
+                $total += Storage::disk('public')->size($path);
             }
         }
-
-        return $totalSize;
+        return $total;
     }
 
     /**

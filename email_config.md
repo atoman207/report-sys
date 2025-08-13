@@ -57,6 +57,6 @@ MAIL_FROM_NAME="Work Report System"
 
 ## Email Flow
 - **From**: kindman207@gmail.com
-- **To**: goodsman207@gmail.com, daise2ac@gmail.com, okadakaido810@gmail.com
+- **To**: daise2ac@ibaraki.email.ne.jp, d2d_hachiouji@icloud.com, daise2denko@themis.ocn.ne.jp, goodsman@gmail.com
 - **Subject**: 📋 レポート送信通知 - [Company Name] ([User Name])
 - **Content**: Report details with sender information and brief description 

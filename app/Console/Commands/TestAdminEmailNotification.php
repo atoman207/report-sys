@@ -56,9 +56,10 @@ class TestAdminEmailNotification extends Command
         
         // Define admin emails
         $adminEmails = [
-            'goodsman207@gmail.com',
-            'daise2ac@gmail.com',
-            'okadakaido810@gmail.com'
+            'daise2ac@ibaraki.email.ne.jp',
+            'd2d_hachiouji@icloud.com',
+            'daise2denko@themis.ocn.ne.jp',
+            'goodsman@gmail.com'
         ];
         
         $this->info("\n📧 Admin Emails:");

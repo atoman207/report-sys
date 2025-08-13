@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Services\AvatarUploadService;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use App\Services\AvatarUploadService;
 
 class RegisterController extends Controller
 {
@@ -25,8 +25,6 @@ class RegisterController extends Controller
 
     use RegistersUsers;
 
-    protected $avatarUploadService;
-
     /**
      * Where to redirect users after registration.
      *
@@ -39,10 +37,9 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct(AvatarUploadService $avatarUploadService)
+    public function __construct()
     {
         $this->middleware('guest');
-        $this->avatarUploadService = $avatarUploadService;
     }
 
     /**
@@ -57,7 +54,8 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,gif', 'max:2048'], // 2MB max
+            // Avatar is optional but must be an image up to 2MB when present
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,gif', 'max:2048'],
         ]);
     }
 
@@ -69,32 +67,22 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $userData = [
+        // Basic user creation first to obtain user ID
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-        ];
+        ]);
 
-        // Create user first to get the ID
-        $user = User::create($userData);
-
-        // Handle avatar upload if provided
-        if (isset($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
-            try {
-                $avatarPath = $this->avatarUploadService->uploadAvatar($data['avatar'], $user->id);
-                $user->update(['avatar' => $avatarPath]);
-                
-                Log::info('User registered with avatar', [
-                    'user_id' => $user->id,
-                    'avatar_path' => $avatarPath
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Failed to upload avatar during registration', [
-                    'user_id' => $user->id,
-                    'error' => $e->getMessage()
-                ]);
-                
-                // Continue with registration even if avatar upload fails
+        // If avatar uploaded, store using the service and update user
+        if (request()->hasFile('avatar')) {
+            /** @var \Illuminate\Http\UploadedFile $file */
+            $file = request()->file('avatar');
+            if ($file && $file->isValid()) {
+                $service = app(AvatarUploadService::class);
+                $path = $service->uploadAvatar($file, $user->id); // stores on public disk
+                $user->avatar = $path; // path relative to public disk
+                $user->save();
             }
         }
 

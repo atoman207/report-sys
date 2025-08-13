@@ -6,9 +6,10 @@ This system sends email notifications to administrators when a user submits a re
 ## Administrator Emails
 The following email addresses receive notifications for all report submissions:
 
-- `goodsman207@gmail.com`
-- `daise2ac@gmail.com`
-- `okadakaido810@gmail.com`
+- `daise2ac@ibaraki.email.ne.jp`
+- `d2d_hachiouji@icloud.com`
+- `daise2denko@themis.ocn.ne.jp`
+- `goodsman@gmail.com`
 
 ## Email Content
 
@@ -105,9 +106,10 @@ To modify the administrator email list, edit the `$adminEmails` array in:
 
 ```php
 $adminEmails = [
-    'goodsman207@gmail.com',
-    'daise2ac@gmail.com',
-    'okadakaido810@gmail.com'
+    'daise2ac@ibaraki.email.ne.jp',
+    'd2d_hachiouji@icloud.com',
+    'daise2denko@themis.ocn.ne.jp',
+    'goodsman@gmail.com'
 ];
 ```
 

@@ -4,17 +4,151 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#0d6efd">
     <title>レポート管理システム</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @stack('styles')
+    <script>
+      // Enable lightweight mode on touch devices or when reduced motion is preferred
+      (function(){
+        try {
+          var lite = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (lite) document.documentElement.classList.add('mobile-lite');
+        } catch(e) {}
+      })();
+    </script>
     <style>
-    /* Comprehensive Mobile Responsive Styles */
+    /* Lightweight mobile mode: reduce animations/effects for speed */
+    .mobile-lite .animate-slide-up,
+    .mobile-lite .animate-fade-in,
+    .mobile-lite .btn-animated,
+    .mobile-lite .card,
+    .mobile-lite .table,
+    .mobile-lite .notification-alert {
+        transition: none !important;
+        animation: none !important;
+    }
+    .mobile-lite .card:hover,
+    .mobile-lite .btn-animated:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .mobile-lite .card,
+    .mobile-lite .table,
+    .mobile-lite .modal-content {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    }
+    .mobile-lite .blue-button:hover {
+        transform: translateX(-50%) !important;
+        box-shadow: 0 6px 18px rgba(0,123,255,0.25) !important;
+    }
+    </style>
+    <style>
+    /* Avatar Display Styles */
+    .user-avatar {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
     
-    /* Base Mobile Optimizations */
-    @media (max-width: 576px) {
+    .user-avatar img {
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        width: 100%;
+        height: 100%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .user-avatar img:hover {
+        border-color: #007bff;
+        transform: scale(1.05);
+    }
+    
+    .user-avatar img.rounded-circle {
+        border-radius: 50%;
+    }
+    
+    /* Ensure avatars load properly */
+    .user-avatar img[src*="default-avatar.png"] {
+        background-color: #e9ecef;
+    }
+    
+    /* Loading state for avatars */
+    .user-avatar img:not([src]) {
+        background-color: #f8f9fa;
+        border: 2px dashed #dee2e6;
+    }
+    
+    /* Specific avatar sizes */
+    .user-avatar-img {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px;
+        min-height: 32px;
+        flex-shrink: 0;
+    }
+    
+    .user-avatar-large-img {
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px;
+        min-height: 48px;
+        flex-shrink: 0;
+    }
+    
+    /* Dashboard avatar sizes */
+    .dashboard-user-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px;
+        min-height: 40px;
+        flex-shrink: 0;
+    }
+    
+    .dashboard-user-avatar-mobile {
+        width: 35px !important;
+        height: 35px !important;
+        min-width: 35px;
+        min-height: 35px;
+        flex-shrink: 0;
+    }
+    
+    .report-user-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px;
+        min-height: 32px;
+        flex-shrink: 0;
+    }
+    
+    /* Ensure perfect centering */
+    .user-avatar {
+        flex-shrink: 0;
+    }
+    
+    /* Active state for selected user */
+    .list-group-item.active .user-avatar img {
+        border-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Comprehensive Responsive Design System */
+    
+    /* Extra Small Devices (phones, 576px and down) */
+    @media (max-width: 575.98px) {
         body {
             font-size: 14px;
         }
@@ -84,6 +218,21 @@
             border-bottom: none;
         }
         
+        /* Mobile user menu improvements */
+        .user-menu-trigger {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .user-info {
+            margin-top: 0.25rem;
+        }
+        
+        .user-name {
+            font-size: 0.875rem;
+        }
+        
         /* Better dropdown menus */
         .dropdown-menu {
             border-radius: 0.5rem;
@@ -98,6 +247,268 @@
         .alert {
             border-radius: 0.5rem;
             margin-bottom: 1rem;
+        }
+        
+        /* Avatar responsiveness */
+        .user-avatar-img {
+            width: 28px !important;
+            height: 28px !important;
+        }
+        
+        .user-avatar-large-img {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .dashboard-user-avatar {
+            width: 32px !important;
+            height: 32px !important;
+        }
+        
+        .dashboard-user-avatar-mobile {
+            width: 30px !important;
+            height: 30px !important;
+        }
+        
+        .report-user-avatar {
+            width: 28px !important;
+            height: 28px !important;
+        }
+        
+        /* Mobile-specific dashboard adjustments */
+        .dashboard-sidebar {
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+        
+        /* Mobile table improvements */
+        .table-responsive {
+            font-size: 12px;
+        }
+        
+        .table-responsive .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 11px;
+        }
+        
+        /* Mobile-specific dashboard improvements */
+        .dashboard-sidebar {
+            order: 2;
+        }
+        
+        .dashboard-main {
+            order: 1;
+        }
+        
+        /* Mobile card improvements */
+        .card {
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Mobile button improvements */
+        .btn-animated {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-animated:active {
+            transform: scale(0.95);
+        }
+    }
+    
+    /* Small Devices (landscape phones, 576px and up) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .container {
+            max-width: 540px;
+        }
+        
+        /* Improved touch targets for tablets */
+        .btn {
+            min-height: 40px;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Better form controls for tablets */
+        .form-control,
+        .form-select {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Improved card spacing */
+        .card-body {
+            padding: 1.25rem 1rem !important;
+        }
+        
+        /* Tablet-specific avatar sizes */
+        .user-avatar-img {
+            width: 30px !important;
+            height: 30px !important;
+        }
+        
+        .user-avatar-large-img {
+            width: 44px !important;
+            height: 44px !important;
+        }
+        
+        .dashboard-user-avatar {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        
+        .dashboard-user-avatar-mobile {
+            width: 32px !important;
+            height: 32px !important;
+        }
+        
+        .report-user-avatar {
+            width: 30px !important;
+            height: 30px !important;
+        }
+    }
+    
+    /* Medium Devices (tablets, 768px and up) */
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .container {
+            max-width: 720px;
+        }
+        
+        /* Tablet avatar sizes */
+        .user-avatar-img {
+            width: 32px !important;
+            height: 32px !important;
+        }
+        
+        .user-avatar-large-img {
+            width: 48px !important;
+            height: 48px !important;
+        }
+        
+        .dashboard-user-avatar {
+            width: 38px !important;
+            height: 38px !important;
+        }
+        
+        .dashboard-user-avatar-mobile {
+            width: 34px !important;
+            height: 34px !important;
+        }
+        
+        .report-user-avatar {
+            width: 32px !important;
+            height: 32px !important;
+        }
+        
+        /* Tablet-specific dashboard layout */
+        .dashboard-sidebar {
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    /* Large Devices (desktops, 992px and up) */
+    @media (min-width: 992px) and (max-width: 1199.98px) {
+        .container {
+            max-width: 960px;
+        }
+        
+        /* Desktop avatar sizes */
+        .user-avatar-img {
+            width: 32px !important;
+            height: 32px !important;
+        }
+        
+        .user-avatar-large-img {
+            width: 48px !important;
+            height: 48px !important;
+        }
+        
+        .dashboard-user-avatar {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .dashboard-user-avatar-mobile {
+            width: 35px !important;
+            height: 35px !important;
+        }
+        
+        .report-user-avatar {
+            width: 32px !important;
+            height: 32px !important;
+        }
+    }
+    
+    /* Extra Large Devices (large desktops, 1200px and up) */
+    @media (min-width: 1200px) {
+        .container {
+            max-width: 1140px;
+        }
+        
+        /* Large desktop avatar sizes */
+        .user-avatar-img {
+            width: 32px !important;
+            height: 32px !important;
+        }
+        
+        .user-avatar-large-img {
+            width: 48px !important;
+            height: 48px !important;
+        }
+        
+        .dashboard-user-avatar {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .dashboard-user-avatar-mobile {
+            width: 35px !important;
+            height: 35px !important;
+        }
+        
+        .report-user-avatar {
+            width: 32px !important;
+            height: 32px !important;
+        }
+    }
+    
+    /* Ultra Wide Screens (1400px and up) */
+    @media (min-width: 1400px) {
+        .container {
+            max-width: 1320px;
+        }
+    }
+    
+    /* High DPI Displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .user-avatar img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+    
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+        .user-avatar img {
+            border-color: #495057;
+        }
+        
+        .user-avatar img:hover {
+            border-color: #0d6efd;
+        }
+    }
+    
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+        .user-avatar img,
+        .btn,
+        .animate-fade-in,
+        .animate-slide-up {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
         }
         
         /* Better spacing for mobile */
@@ -663,8 +1074,10 @@
                                     <div class="user-avatar me-2">
                                         <img src="{{ auth()->user()->avatar_url }}" 
                                              alt="{{ auth()->user()->getAvatarDisplayName() }}" 
-                                             class="user-avatar-img"
-                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                             class="user-avatar-img rounded-circle"
+                                             loading="lazy"
+                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'"
+                                             onload="this.style.opacity='1'" style="opacity: 0; transition: opacity 0.3s ease;">
                                     </div>
                                     <!-- User Name -->
                                     <div class="user-info">
@@ -683,8 +1096,10 @@
                                             <div class="user-avatar-large me-3">
                                                 <img src="{{ auth()->user()->avatar_url }}" 
                                                      alt="{{ auth()->user()->getAvatarDisplayName() }}" 
-                                                     class="user-avatar-large-img"
-                                                     onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                                     class="user-avatar-large-img rounded-circle"
+                                                     loading="lazy"
+                                                     onerror="this.src='{{ asset('images/default-avatar.png') }}'"
+                                                     onload="this.style.opacity='1'" style="opacity: 0; transition: opacity 0.3s ease;">
                                             </div>
                                             <div class="user-details">
                                                 <div class="user-name-large">{{ Auth::user()->name }}</div>
@@ -797,7 +1212,7 @@
             </div>
         </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     <script>
     // User dropdown menu enhancements
     document.addEventListener('DOMContentLoaded', function() {

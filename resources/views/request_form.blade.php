@@ -270,13 +270,21 @@
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Animation system
+        // Animation system (disabled/simplified on mobile or reduced-motion)
+        const reduceAnimations = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceAnimations) {
+            document.querySelectorAll('.animate-slide-up, .animate-fade-in').forEach(function(el){
+                el.classList.add('animate-in');
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+            });
+        }
         function animateOnScroll() {
+            if (reduceAnimations) return; // skip animations on mobile or reduced motion
             const elements = document.querySelectorAll('.animate-slide-up, .animate-fade-in');
             elements.forEach(element => {
                 const elementTop = element.getBoundingClientRect().top;
                 const elementVisible = 150;
-                
                 if (elementTop < window.innerHeight - elementVisible) {
                     const delay = element.getAttribute('data-delay') || 0;
                     setTimeout(() => {
@@ -288,7 +296,9 @@
 
         // Initial animation
         animateOnScroll();
-        window.addEventListener('scroll', animateOnScroll);
+        if (!reduceAnimations) {
+            window.addEventListener('scroll', animateOnScroll);
+        }
 
         // Success modal for form submission
         @if(session('success'))
@@ -324,6 +334,24 @@
             velocityFilterWeight: 0.7,
             penColor: '#000000'
         });
+        // Improve pointer/touch alignment by accounting for canvas offset and DPR
+        function getCanvasPoint(e){
+            const rect = canvas.getBoundingClientRect();
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            let clientX, clientY;
+            if (e.touches && e.touches.length) {
+                clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX; clientY = e.clientY;
+            }
+            return {
+                x: (clientX - rect.left) * ratio,
+                y: (clientY - rect.top) * ratio
+            };
+        }
+        // Patch native pointer events for better accuracy on some mobile browsers
+        canvas.addEventListener('pointerdown', (e)=>{ e.preventDefault(); });
+        canvas.addEventListener('pointermove', (e)=>{ e.preventDefault(); });
 
         // Responsive canvas sizing
         function resizeCanvas() {
@@ -365,14 +393,15 @@
             }
         });
 
-        // Prevent scrolling when drawing on mobile
+        // Prevent scrolling when drawing on mobile and fix offset
         canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
         }, { passive: false });
-
         canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
+        // Also prevent on wheel to avoid accidental scrolling while signing
+        canvas.addEventListener('wheel', function(e) { e.preventDefault(); }, { passive: false });
 
         // 画像プレビュー
         const imageInput = document.getElementById('image-input');
@@ -649,17 +678,17 @@
 /* Signature Canvas */
 .signature-canvas {
     width: 100%;
-    height: 180px;
+    height: 200px;
     border: 2px solid #e9ecef;
     border-radius: 0.75rem;
     background: white;
-    transition: all 0.3s ease;
+    touch-action: none; /* prevent browser gestures */
 }
 
-.signature-canvas:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+@media (max-width: 576px) {
+  .signature-canvas { height: 240px; }
 }
+
 
 /* Loading Animation */
 .loading {

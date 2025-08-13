@@ -57,25 +57,33 @@
 <div class="container-fluid">
     <div class="row">
         <!-- サイドバー（メンバー一覧・管理者管理） -->
-        <div class="col-md-3 col-lg-2 mb-3">
+        <div class="col-lg-3 col-xl-2 mb-3 dashboard-sidebar">
             <div class="card mb-3 animate-slide-up" data-delay="0">
                 <div class="card-header">
                     <i class="fas fa-users me-2"></i>メンバー一覧
                 </div>
                 <div class="card-body p-2">
                     <!-- PC/タブレット: テーブル用リスト -->
-                    <div class="d-none d-md-block">
+                    <div class="d-none d-lg-block">
                         <div class="list-group list-group-flush">
                             <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action {{ !request('user_id') ? 'active' : '' }} btn-animated">
                                 <i class="fas fa-users me-2"></i>全メンバー
                             </a>
-                            @foreach($users as $index => $user)
+                            @php
+                                $usersToShow = $users;
+                                $firstAdmin = $users->firstWhere('role', 'admin');
+                                if ($firstAdmin) {
+                                    $usersToShow = $users->reject(fn($u) => $u->id === $firstAdmin->id)->values();
+                                }
+                            @endphp
+                            @foreach($usersToShow as $index => $user)
                                 <a href="{{ route('dashboard', ['user_id' => $user->id]) }}" class="list-group-item list-group-item-action {{ request('user_id') == $user->id ? 'active' : '' }} btn-animated" data-delay="{{ $index * 0.05 }}">
                                     <div class="d-flex align-items-center">
-                                        <div class="user-avatar me-3">
+                                        <div class="user-avatar me-3 dashboard-user-avatar">
                                             <img src="{{ $user->avatar_url }}" alt="{{ $user->getAvatarDisplayName() }}" 
-                                                 class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"
-                                                 onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                                             class="rounded-circle"
+                                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'"
+                                                             onload="this.style.opacity='1'" style="opacity: 0; transition: opacity 0.3s ease;">
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center">
@@ -85,25 +93,33 @@
                                             @if($user->role === 'admin')<span class="badge bg-danger ms-1">管理者</span>@endif
                                                 </div>
                                             </div>
-                                            <div class="small text-muted">{{ $user->email }}</div>
+                                            <div class="small text-muted">{{ $user->role === 'admin' ? '管理者' : '' }}</div>
                                         </div>
                                     </div>
                                 </a>
                             @endforeach
                         </div>
                     </div>
-                    <!-- スマホ: ボタン縦並び -->
-                    <div class="d-block d-md-none">
+                    <!-- スマホ・タブレット: ボタン縦並び -->
+                    <div class="d-block d-lg-none">
                         <button class="btn btn-secondary w-100 mb-2 member-btn btn-animated" data-user="all">
                             <i class="fas fa-users me-2"></i>全メンバー
                         </button>
-                        @foreach($users as $index => $user)
+                        @php
+                            $usersToShowMobile = $users;
+                            $firstAdminMobile = $users->firstWhere('role', 'admin');
+                            if ($firstAdminMobile) {
+                                $usersToShowMobile = $users->reject(fn($u) => $u->id === $firstAdminMobile->id)->values();
+                            }
+                        @endphp
+                        @foreach($usersToShowMobile as $index => $user)
                             <button class="btn btn-outline-primary w-100 mb-2 member-btn btn-animated" data-user="{{ $user->id }}" data-delay="{{ $index * 0.05 }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="user-avatar me-3">
+                                    <div class="user-avatar me-3 dashboard-user-avatar-mobile">
                                         <img src="{{ $user->avatar_url }}" alt="{{ $user->getAvatarDisplayName() }}" 
-                                             class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;"
-                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                             class="rounded-circle"
+                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'"
+                                             onload="this.style.opacity='1'" style="opacity: 0; transition: opacity 0.3s ease;">
                                     </div>
                                     <div class="flex-grow-1 text-start">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -113,7 +129,7 @@
                                         @if($user->role === 'admin')<span class="badge bg-danger ms-1">管理者</span>@endif
                                             </div>
                                         </div>
-                                        <div class="small text-muted">{{ $user->email }}</div>
+                                        <div class="small text-muted">{{ $user->role === 'admin' ? '管理者' : '' }}</div>
                                     </div>
                                 </div>
                             </button>
@@ -121,20 +137,34 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Admin Management Section -->
+            <div class="card mb-3 animate-slide-up" data-delay="0.1">
+                <div class="card-header">
+                    <i class="fas fa-cogs me-2"></i>管理者機能
+                </div>
+                <div class="card-body p-2">
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('admin.images.index') }}" class="btn btn-outline-primary btn-animated">
+                            <i class="fas fa-images me-2"></i>画像管理
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- メインコンテンツ -->
-        <div class="col-md-9 col-lg-10">
+        <div class="col-lg-9 col-xl-10 dashboard-main">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="animate-fade-in">
                     <h2 class="mb-1 fs-4 fw-bold text-primary">
-                        @if(request('user_id'))
+                        @if(request('user_id') && $selectedUser)
                             {{ $selectedUser->name }}さんのレポート
                         @else
                             ダッシュボード
                         @endif
                     </h2>
                     <div class="text-muted small">
-                        @if(request('user_id'))
+                        @if(request('user_id') && $selectedUser)
                             {{ $selectedUser->email }}
                             @if($selectedUser->role === 'admin')<span class="badge bg-danger ms-2">管理者</span>@endif
                         @else
@@ -148,7 +178,7 @@
             </div>
             <!-- 統計カード -->
             <div class="row mb-4 g-3">
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card stat-card animate-slide-up" data-delay="0.1">
                         <div class="card-body text-center p-3">
                             <div class="stat-icon mb-2">
@@ -159,7 +189,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card stat-card animate-slide-up" data-delay="0.2">
                         <div class="card-body text-center p-3">
                             <div class="stat-icon mb-2">
@@ -170,7 +200,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card stat-card animate-slide-up" data-delay="0.3">
                         <div class="card-body text-center p-3">
                             <div class="stat-icon mb-2">
@@ -181,7 +211,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card stat-card animate-slide-up" data-delay="0.4">
                         <div class="card-body text-center p-3">
                             <div class="stat-icon mb-2">
@@ -204,19 +234,19 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-md-3">
+                                <div class="col-6 col-lg-3">
                                     <div class="text-center">
                                         <div class="fs-4 fw-bold text-primary">{{ $imageStats['total_reports_with_images'] }}</div>
                                         <div class="text-muted small">画像付きレポート</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-lg-3">
                                     <div class="text-center">
                                         <div class="fs-4 fw-bold text-success">{{ $imageStats['total_images'] }}</div>
                                         <div class="text-muted small">総画像数</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-lg-3">
                                     <div class="text-center">
                                         <div class="fs-4 fw-bold text-info">
                                             @php
@@ -233,7 +263,7 @@
                                         <div class="text-muted small">総ファイルサイズ</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-lg-3">
                                     <div class="text-center">
                                         <div class="fs-4 fw-bold text-warning">{{ $imageStats['reports_with_signatures'] }}</div>
                                         <div class="text-muted small">署名付きレポート</div>
@@ -246,7 +276,7 @@
             </div>
             @endif
             <!-- レポート一覧テーブル（PC/タブレット） -->
-            <div class="d-none d-md-block">
+            <div class="d-none d-lg-block">
                 <div class="card animate-slide-up" data-delay="0.5">
                     <div class="card-header">
                         <i class="fas fa-list me-2"></i>レポート一覧
@@ -274,15 +304,16 @@
                                             <td><span class="badge bg-secondary">#{{ $report->id }}</span></td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="user-avatar me-2">
+                                                    <div class="user-avatar me-2 report-user-avatar">
                                                         <img src="{{ $report->user->avatar_url ?? asset('images/default-avatar.png') }}" 
                                                              alt="{{ $report->user ? $report->user->getAvatarDisplayName() : 'Unknown User' }}" 
-                                                             class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;"
-                                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'">
+                                                             class="rounded-circle"
+                                                             onerror="this.src='{{ asset('images/default-avatar.png') }}'"
+                                                             onload="this.style.opacity='1'" style="opacity: 0; transition: opacity 0.3s ease;">
                                                     </div>
                                                     <div>
                                                         <div class="fw-medium">{{ $report->user->name ?? '不明' }}</div>
-                                                        <div class="small text-muted">{{ $report->user->email ?? '' }}</div>
+                                                        <div class="small text-muted">{{ ($report->user && $report->user->role === 'admin') ? '管理者' : '' }}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -293,17 +324,17 @@
                                             <td>
                                                 @if($report->hasImages())
                                                     <div class="d-flex flex-wrap gap-1">
-                                                        @foreach(array_slice($report->images, 0, 2) as $img)
+                                                        @foreach(array_slice($report->normalized_images, 0, 2) as $img)
                                                             <button type="button" class="btn btn-sm btn-outline-primary btn-animated view-image-btn" 
-                                                                    data-images='@json($report->images)' 
+                                                                    data-images='@json($report->normalized_images)' 
                                                                     data-report-id="{{ $report->id }}"
                                                                     data-report-company="{{ $report->company }}">
                                                                 <i class="fas fa-image me-1"></i>画像
                                                                 <small class="d-block">{{ $report->image_count }}枚</small>
                                                             </button>
                                                         @endforeach
-                                                        @if(count($report->images) > 2)
-                                                            <span class="badge bg-secondary">+{{ count($report->images) - 2 }}</span>
+                                                        @if(count($report->normalized_images) > 2)
+                                                            <span class="badge bg-secondary">+{{ count($report->normalized_images) - 2 }}</span>
                                                         @endif
                                                     </div>
                                                     <small class="text-muted">{{ $report->formatted_image_size }}</small>
@@ -329,9 +360,9 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($report->signature)
-                                                    <a href="{{ Storage::url($report->signature) }}" target="_blank" class="btn btn-sm btn-outline-success btn-animated">署名</a>
-                                                @else
+                                                                                                    @if($report->normalized_signature)
+                                                        <a href="{{ route('admin.images.file', ['path' => $report->normalized_signature]) }}" target="_blank" class="btn btn-sm btn-outline-success btn-animated">署名</a>
+                                                    @else
                                                     <span class="text-muted">なし</span>
                                                 @endif
                                             </td>
@@ -356,8 +387,8 @@
                     </div>
                 </div>
             </div>
-            <!-- スマホ: メンバー名ボタン押下でレポート表示 -->
-            <div class="d-block d-md-none mt-3" id="mobile-report-list">
+            <!-- スマホ・タブレット: メンバー名ボタン押下でレポート表示 -->
+            <div class="d-block d-lg-none mt-3" id="mobile-report-list">
                 <!-- JSで動的に挿入 -->
             </div>
         </div>
@@ -391,8 +422,8 @@ function renderMobileReports(userId) {
         
         html += `<div class='list-group-item mb-2 animate-slide-up' data-delay='${index * 0.05}'>
                 <div class='d-flex align-items-start mb-2'>
-                    <div class='user-avatar me-2'>
-                        <img src='${userAvatar}' alt='${userName}' class='rounded-circle' style='width: 40px; height: 40px; object-fit: cover;' onerror="this.src='/images/default-avatar.png'">
+                    <div class='user-avatar me-2 dashboard-user-avatar'>
+                        <img src='${userAvatar}' alt='${userName}' class='rounded-circle' style='opacity: 0; transition: opacity 0.3s ease;' onerror="this.src='/images/default-avatar.png'" onload="this.style.opacity='1'">
                     </div>
                     <div class='flex-grow-1'>
                         <div class='fw-bold mb-1'>${r.company} <span class='badge bg-secondary'>#${r.id}</span></div>
@@ -520,7 +551,7 @@ function showImageModal(images, reportId, reportCompany) {
     imageThumbnails.innerHTML = '';
     
     images.forEach((image, index) => {
-        const imageUrl = `/storage/${image}`;
+        const imageUrl = `{{ route('admin.images.file', ['path' => ':imagePath']) }}`.replace(':imagePath', encodeURIComponent(image));
         
         // Carousel item
         const carouselItem = document.createElement('div');
@@ -569,7 +600,7 @@ document.getElementById('download-all-btn').addEventListener('click', function()
     const zip = new JSZip();
     const promises = currentImages.map(async (image, index) => {
         try {
-            const response = await fetch(`/storage/${image}`);
+            const response = await fetch(`{{ route('admin.images.file', ['path' => ':imagePath']) }}`.replace(':imagePath', encodeURIComponent(image)));
             const blob = await response.blob();
             const filename = image.split('/').pop();
             zip.file(`report_${currentReportId}_image_${index + 1}_${filename}`, blob);
@@ -602,7 +633,7 @@ document.addEventListener('click', function(e) {
         const filename = btn.dataset.filename;
         
         const a = document.createElement('a');
-        a.href = `/storage/${image}`;
+        a.href = `{{ route('admin.images.download', ['reportId' => ':reportId', 'imagePath' => ':imagePath']) }}`.replace(':reportId', currentReportId).replace(':imagePath', encodeURIComponent(image));
         a.download = `report_${currentReportId}_${filename}`;
         document.body.appendChild(a);
         a.click();

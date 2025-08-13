@@ -67,95 +67,58 @@ class RequestController extends Controller
             return back()->withInput()->with('error', '画像の合計サイズは5MB以下にしてください。');
         }
 
-        try {
-            // Create report
-            $report = Report::create([
-                'user_id' => auth()->id(),
-                'company' => $request->company,
-                'person' => $request->person,
-                'site' => $request->site,
-                'store' => $request->store,
-                'work_type' => $request->work_type,
-                'task_type' => $request->task_type,
-                'request_detail' => $request->request_detail,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'visit_status' => $request->visit_status,
-                'repair_place' => $request->repair_place,
-                'visit_status_detail' => $request->visit_status_detail,
-                'work_detail' => $request->work_detail,
-            ]);
+        $report = Report::create([
+            'user_id' => auth()->id(),
+            'company' => $request->company,
+            'person' => $request->person,
+            'site' => $request->site,
+            'store' => $request->store,
+            'work_type' => $request->work_type,
+            'task_type' => $request->task_type,
+            'request_detail' => $request->request_detail,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'visit_status' => $request->visit_status,
+            'repair_place' => $request->repair_place,
+            'visit_status_detail' => $request->visit_status_detail,
+            'work_detail' => $request->work_detail,
+        ]);
 
-            // Upload images using the service
-            if (!empty($images)) {
-                $imagePaths = $this->imageUploadService->uploadImages($images, $report->id);
-                $report->update(['images' => $imagePaths]);
-            }
-
-            // Save signature using the service
-            if ($request->signature) {
-                $signaturePath = $this->imageUploadService->uploadSignature($request->signature, $report->id);
-                $report->update(['signature' => $signaturePath]);
-            }
-
-            // Send email notification to all administrators
-            try {
-                // Use hardcoded admin emails as specified
-                $adminEmails = [
-                    'goodsman207@gmail.com',
-                    'daise2ac@gmail.com',
-                    'okadakaido810@gmail.com'
-                ];
-                
-                if (!empty($adminEmails)) {
-                    Mail::to($adminEmails)->send(new ReportSubmitted($report));
-                    
-                    // Log successful email sending
-                    \Log::info('Report notification sent successfully', [
-                        'report_id' => $report->id,
-                        'admin_emails' => $adminEmails,
-                        'user_id' => auth()->id(),
-                        'user_email' => auth()->user()->email,
-                        'company' => $report->company
-                    ]);
-                } else {
-                    \Log::warning('No admin emails found for report notification', [
-                        'report_id' => $report->id,
-                        'user_id' => auth()->id()
-                    ]);
-                }
-            } catch (\Exception $e) {
-                // Log email sending error but don't fail the report submission
-                \Log::error('Failed to send report notification email', [
-                    'report_id' => $report->id,
-                    'error' => $e->getMessage(),
-                    'user_id' => auth()->id(),
-                    'user_email' => auth()->user()->email
-                ]);
-            }
-
-            // Prepare success message with details
-            $imageCount = count($images);
-            $signatureText = $request->signature ? ' + 署名' : '';
-            $successMessage = "レポートが正常に送信されました。";
-            
-            if ($imageCount > 0) {
-                $successMessage .= "画像{$imageCount}枚{$signatureText}が添付されました。";
-            }
-            
-            $successMessage .= "管理者に通知メールが送信されました。";
-
-            return back()->with('success', $successMessage);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to submit report', [
-                'user_id' => auth()->id(),
-                'error' => $e->getMessage(),
-                'request_data' => $request->except(['images', 'signature'])
-            ]);
-
-            return back()->withInput()->with('error', 'レポートの送信に失敗しました。もう一度お試しください。');
+        // Upload images using the service
+        if (!empty($images)) {
+            $imagePaths = $this->imageUploadService->uploadImages($images, $report->id);
+            $report->update(['images' => $imagePaths]);
         }
+
+        if ($request->signature) {
+            $signaturePath = $this->imageUploadService->uploadSignature($request->signature, $report->id);
+            $report->update(['signature' => $signaturePath]);
+        }
+
+        $adminEmails = [
+            'daise2ac@ibaraki.email.ne.jp',
+            'd2d_hachiouji@icloud.com',
+            'daise2denko@themis.ocn.ne.jp',
+            'goodsman207@gmail.com'
+        ];
+        
+        if (!empty($adminEmails)) {
+            foreach($adminEmails as $adminEmail) {
+                Mail::to($adminEmail)->send(new ReportSubmitted($report));
+            }
+        }
+
+        $imageCount = count($images);
+        $signatureText = $request->signature ? ' + 署名' : '';
+        $successMessage = "レポートが正常に送信されました。";
+        
+        if ($imageCount > 0) {
+            $successMessage .= "画像{$imageCount}枚{$signatureText}が添付されました。";
+        }
+        
+        $successMessage .= "管理者に通知メールが送信されました。";
+
+        return back()->with('success', $successMessage);
     }
 
     public function indexReport()
@@ -278,8 +241,13 @@ class RequestController extends Controller
         $reportsQuery = Report::with('user')->orderBy('created_at', 'desc');
         
         if ($request->has('user_id') && $request->user_id) {
-            $reportsQuery->where('user_id', $request->user_id);
             $selectedUser = User::find($request->user_id);
+            if ($selectedUser) {
+                $reportsQuery->where('user_id', $request->user_id);
+            } else {
+                // If invalid user_id provided, redirect to dashboard without filter
+                return redirect()->route('dashboard')->with('error', '指定されたユーザーが見つかりませんでした。');
+            }
         } else {
             $selectedUser = null;
         }

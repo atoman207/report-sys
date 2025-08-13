@@ -16,13 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::updateOrCreate(
-            ['email' => 'zumado.jp0527@gmail.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('zumado.jp0527@gmail.com'),
-            ]
-        );
+
         User::updateOrCreate(
             ['email' => 'daise2ac@gmail.com'],
             [
@@ -33,22 +27,40 @@ class DatabaseSeeder extends Seeder
             ]
         );
         User::updateOrCreate(
-            ['email' => 'goodsman207@gmail.com'],
+            ['email' => 'kindman207@gmail.com'],
             [
                 'name' => 'Atoman',
-                'password' => Hash::make('goodsman207@gmail.com'),
+                'password' => Hash::make('kindman207@gmail.com'),
                 'is_admin' => 1,
                 'role' => 'admin'
             ]
         );
-        User::updateOrCreate(
-            ['email' => 'okadakaido810@gmail.com'],
-            [
-                'name' => 'Shnata',
-                'password' => Hash::make('okadakaido810@gmail.com'),
-                'is_admin' => 1,
-                'role' => 'admin'
-            ]
-        );
+            User::updateOrCreate(
+                ['email' => 'daise2ac@ibaraki.email.ne.jp'],
+                [
+                    'name' => 'daise2ac',
+                    'password' => Hash::make('daise2ac@ibaraki.email.ne.jp'),
+                    'is_admin' => 1,
+                    'role' => 'admin'
+                ]
+            );
+            User::updateOrCreate(
+                ['email' => 'd2d_hachiouji@icloud.com'],
+                [
+                    'name' => 'd2d_hachiouji',
+                    'password' => Hash::make('d2d_hachiouji@icloud.com'),
+                    'is_admin' => 1,
+                    'role' => 'admin'
+                ]
+            );
+            User::updateOrCreate(
+                ['email' => 'daise2denko@themis.ocn.ne.jp'],
+                [
+                    'name' => 'daise2denko',
+                    'password' => Hash::make('daise2denko@themis.ocn.ne.jp'),
+                    'is_admin' => 1,
+                    'role' => 'admin'
+                ]
+            );
     }
 }
